@@ -79,6 +79,12 @@ class _AndroidContainerState extends ConsumerState<AndroidManager>
   }
 
   @override
+  void onServiceStarted() {
+    unawaited(ref.read(setupActionProvider.notifier).setRunning(true));
+    super.onServiceStarted();
+  }
+
+  @override
   void onServiceStopped() {
     unawaited(ref.read(setupActionProvider.notifier).setRunning(false));
     super.onServiceStopped();

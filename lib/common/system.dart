@@ -38,6 +38,10 @@ class System {
 
   bool get isAndroid => Platform.isAndroid;
 
+  bool get isIOS => Platform.isIOS;
+
+  bool get isMobile => isAndroid || isIOS;
+
   bool get isLinux => Platform.isLinux;
 
   bool get isTV => _isTV;

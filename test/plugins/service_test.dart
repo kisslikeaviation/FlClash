@@ -21,7 +21,11 @@ class _RecordingListener with ServiceListener {
 }
 
 class _RecordingStopListener with ServiceListener {
+  var starts = 0;
   var stops = 0;
+
+  @override
+  void onServiceStarted() => starts++;
 
   @override
   void onServiceStopped() => stops++;
@@ -183,6 +187,15 @@ void main() {
           );
     }
 
+    Future<void> reportStarted() async {
+      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage(
+            channelName,
+            codec.encodeMethodCall(const MethodCall('started')),
+            null,
+          );
+    }
+
     int lastRevision() => calls.last.arguments as int;
 
     setUp(() {
@@ -192,6 +205,16 @@ void main() {
     });
 
     tearDown(() => Service().removeListener(listener));
+
+    test('a start from outside the app arms the stop report for it', () async {
+      await Service().stop();
+
+      await reportStarted();
+      await reportStopped(lastRevision());
+
+      expect(listener.starts, 1);
+      expect(listener.stops, 1);
+    });
 
     test('every command carries a revision newer than the last', () async {
       await Service().start();

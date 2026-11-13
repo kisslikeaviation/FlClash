@@ -11,9 +11,20 @@ void main(List<String> args) async {
     }
     await FlutterRustBridgeNativeAssetsBuilder(
       cratePath: 'rust',
-      extraCargoEnvironmentVariables: _bindgenEnvironment(input),
+      extraCargoEnvironmentVariables: _cargoEnvironment(input),
     ).run(input: input, output: output);
   });
+}
+
+Map<String, String> _cargoEnvironment(BuildInput input) {
+  if (input.config.buildCodeAssets && input.config.code.targetOS == OS.iOS) {
+    // rustc's default target is too old for the stack probe the C objects
+    // reference, which then fails to link.
+    return {
+      'IPHONEOS_DEPLOYMENT_TARGET': '${input.config.code.iOS.targetVersion}',
+    };
+  }
+  return _bindgenEnvironment(input);
 }
 
 // rquickjs runs bindgen on Android, which must load the NDK's libclang; Linux

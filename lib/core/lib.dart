@@ -116,7 +116,11 @@ class CoreLib extends CoreHandlerInterface {
   // that ends, so once it takes the command the Core's own answer is moot.
   @override
   Future<void> startListener() async {
-    await _ignoreUnanswered(super.startListener);
+    // iOS runs the listeners in the tunnel extension's Core, and a second set
+    // in the app's Core would hold their ports.
+    if (!system.isIOS) {
+      await _ignoreUnanswered(super.startListener);
+    }
     if (!await _service!.start()) {
       throw const CoreMethodException(
         code: 'service_refused',
@@ -128,7 +132,9 @@ class CoreLib extends CoreHandlerInterface {
   @override
   Future<void> stopListener() async {
     final serviceStopped = await _service!.stop();
-    await _ignoreUnanswered(super.stopListener);
+    if (!system.isIOS) {
+      await _ignoreUnanswered(super.stopListener);
+    }
     if (!serviceStopped) {
       throw const CoreMethodException(
         code: 'service_refused',
@@ -180,4 +186,4 @@ class CoreLib extends CoreHandlerInterface {
   }
 }
 
-CoreLib? get coreLib => system.isAndroid ? CoreLib() : null;
+CoreLib? get coreLib => system.isMobile ? CoreLib() : null;

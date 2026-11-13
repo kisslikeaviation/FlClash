@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -14,8 +15,18 @@ class AppPath {
   Completer<Directory> cacheDir = Completer();
 
   @visibleForTesting
-  static Future<Directory> Function() supportDirectory =
-      getApplicationSupportDirectory;
+  static Future<Directory> Function() supportDirectory = Platform.isIOS
+      ? _appGroupDirectory
+      : getApplicationSupportDirectory;
+
+  // The tunnel extension reads the profiles and writes the Core's providers
+  // here, and it cannot reach the app's own sandbox.
+  static Future<Directory> _appGroupDirectory() async {
+    final path = await const MethodChannel(
+      '$packageName/service',
+    ).invokeMethod<String>('homeDir');
+    return Directory(path!);
+  }
 
   @visibleForTesting
   static Future<Directory> Function() temporaryDirectory =
@@ -80,8 +91,12 @@ class AppPath {
   }
 
   Future<String> get databasePath async {
-    final mHomeDirPath = await homeDirPath;
-    return join(mHomeDirPath, 'database.sqlite');
+    // iOS kills a suspended app that holds a lock on a file in an App Group,
+    // and only the app ever opens the database.
+    final directory = Platform.isIOS
+        ? (await getApplicationSupportDirectory()).path
+        : await homeDirPath;
+    return join(directory, 'database.sqlite');
   }
 
   Future<String> get tempFilePath async {

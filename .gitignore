@@ -79,3 +79,6 @@ devtools_options.yaml
 .fvm/
 .fvmrc
 /coverage/lcov.info
+
+# gomobile output of ios/build-core.sh
+/ios/Frameworks/

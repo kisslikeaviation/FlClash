@@ -22,7 +22,7 @@ enum SupportPlatform {
       return SupportPlatform.MacOS;
     } else if (Platform.isLinux) {
       return SupportPlatform.Linux;
-    } else if (system.isAndroid) {
+    } else if (system.isMobile) {
       return SupportPlatform.Android;
     }
     throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');

@@ -772,6 +772,8 @@ class SetupAction extends _$SetupAction {
     if (system.isAndroid) {
       await ref.read(vpnOptionsProvider.future);
       await preferences.saveShareState(ref.read(sharedStateProvider));
+    }
+    if (system.isMobile) {
       await preferences.saveAppliedConfigMd5(null);
     }
     // Recaptured so _start's catch can roll back after safeRun swallows it.
@@ -821,7 +823,7 @@ class SetupAction extends _$SetupAction {
         globalState.lastConfigCounts =
             realProfile?.counts ?? configCountsOf(const {});
         _appliedInputs = inputs;
-        if (system.isAndroid) {
+        if (system.isMobile) {
           await preferences.saveAppliedConfigMd5(yamlMd5);
         }
         await onUpdated?.call();

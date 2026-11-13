@@ -33,6 +33,8 @@ Future<Map<String, Object?>> _decodeResponse(
 abstract mixin class ServiceListener {
   void onServiceEvent(CoreEvent event) {}
 
+  void onServiceStarted() {}
+
   void onServiceStopped() {}
 }
 
@@ -68,6 +70,10 @@ class Service {
               (listener) => listener.onServiceEvent(event),
             );
           }
+          break;
+        case 'started':
+          _startRequested = true;
+          _dispatch('start report', (listener) => listener.onServiceStarted());
           break;
         case 'stopped':
           // A report stamped before the newest command no longer describes it.
@@ -165,4 +171,4 @@ class Service {
   }
 }
 
-Service? get service => system.isAndroid ? Service() : null;
+Service? get service => system.isMobile ? Service() : null;

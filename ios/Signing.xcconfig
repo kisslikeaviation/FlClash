@@ -1,0 +1,6 @@
+// Put your own team and bundle id in Signing.local.xcconfig, which git ignores:
+//   APP_BUNDLE_ID = com.example.flclash
+//   DEVELOPMENT_TEAM = ABCDE12345
+APP_BUNDLE_ID = com.follow.clash
+DEVELOPMENT_TEAM =
+#include? "Signing.local.xcconfig"

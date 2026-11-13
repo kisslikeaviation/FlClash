@@ -1,4 +1,4 @@
-//go:build android
+//go:build android || ios
 
 package core
 
@@ -17,7 +17,6 @@ import (
 	"github.com/metacubex/mihomo/component/dialer"
 	"github.com/metacubex/mihomo/component/process"
 	"github.com/metacubex/mihomo/constant"
-	"github.com/metacubex/mihomo/dns"
 	"github.com/metacubex/mihomo/listener/sing_tun"
 	"github.com/metacubex/mihomo/log"
 )
@@ -111,7 +110,7 @@ func (th *TunHandler) handleResolveProcess(source, target net.Addr) (int, string
 	}
 	var uid int
 	if sdkVersion.Load() < 29 {
-		uid = platform.QuerySocketUidFromProcFs(source, target)
+		uid = queryProcFsUid(source, target)
 	} else {
 		uid = th.callbacks.ResolveUid(protocol, source.String(), target.String())
 	}
@@ -232,8 +231,7 @@ func handleUpdateDns(value string) {
 			return
 		}
 		log.Infoln("[DNS] updateDns %s", value)
-		dns.UpdateSystemDNS(addr)
-		dns.FlushCacheWithDefaultResolver()
+		applySystemDNS(addr)
 	})
 }
 
